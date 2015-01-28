@@ -1,25 +1,33 @@
 
 #pragma once
-#include "../System/window_create.h"
-#include "../../lib/font.hpp"
+#include "../Manager/win_manager.h"
+#include "../Manager/data_manager.h"
 
 //
 // ƒ^ƒCƒgƒ‹‰æ–Ê
 //
 
-class Title {
-  std::unique_ptr<Font> font;
+class cTitle {
+  //Texture bg_;
+  Font font_;
+  std::string text_;
 
-  Texture bg;
+  struct {
+    short time_;
+    short blink_;
+  } anime_;
+
+  float x_;
 
   void draw_bg();
   void draw_logo();
+  void draw_telop();
 
 public:
-  Title();
+  cTitle();
 
-  void draw();
+  void init();
+
   void update();
-
-  void reset();
+  void draw();
 };

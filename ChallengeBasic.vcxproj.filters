@@ -7,20 +7,23 @@
     <Filter Include="_Header">
       <UniqueIdentifier>{e3328b72-d816-45bb-a565-b60a8e5c43f9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="System">
-      <UniqueIdentifier>{24ed4470-f724-46a6-b94d-2030cfce82a2}</UniqueIdentifier>
+    <Filter Include="Object">
+      <UniqueIdentifier>{109e2c5c-6df3-4f5f-975b-7a6b0003e0ba}</UniqueIdentifier>
     </Filter>
     <Filter Include="Scene">
-      <UniqueIdentifier>{6cdaed6b-ffbf-4dd5-9ed2-bcf696694d3f}</UniqueIdentifier>
+      <UniqueIdentifier>{46c39bfc-f003-4c7f-aa8b-8846b25e97c8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Object">
-      <UniqueIdentifier>{1be624aa-97e7-4400-bfbe-af75f37943f1}</UniqueIdentifier>
+    <Filter Include="System">
+      <UniqueIdentifier>{b0808261-fe38-4480-914f-0a6b8cfc0a75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{d7127041-dff2-4a38-b997-773bb215a7e2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource">
-      <UniqueIdentifier>{518e4ca6-af49-41eb-b81d-c1bdfc254388}</UniqueIdentifier>
+      <UniqueIdentifier>{ef4eb15f-60d6-406e-9686-f2cac0ffe092}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game">
-      <UniqueIdentifier>{60cdc592-d848-4ddf-ae6f-413550085ba7}</UniqueIdentifier>
+    <Filter Include="Scene\Politics">
+      <UniqueIdentifier>{8e9508eb-59fe-4e19-8db9-42321115c706}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -73,32 +76,65 @@
       <Filter>_Lib</Filter>
     </ClCompile>
     <ClCompile Include="src\origin\main.cpp" />
-    <ClCompile Include="src\origin\System\window_create.cpp">
-      <Filter>System</Filter>
+    <ClCompile Include="src\origin\Manager\scene_manager.cpp">
+      <Filter>Manager</Filter>
     </ClCompile>
-    <ClCompile Include="src\origin\Scene\scene_manager.cpp">
-      <Filter>Scene</Filter>
+    <ClCompile Include="src\origin\Manager\win_manager.cpp">
+      <Filter>Manager</Filter>
     </ClCompile>
     <ClCompile Include="src\origin\Object\collision.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\origin\System\game_manager.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
-    <ClCompile Include="src\origin\Scene\title.cpp">
+    <ClCompile Include="src\origin\Scene\politics.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\origin\Scene\result.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\origin\Game\stage.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="src\origin\Scene\title.cpp">
+      <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\origin\Game\system_data.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="src\origin\Manager\data_manager.cpp">
+      <Filter>Manager</Filter>
     </ClCompile>
-    <ClCompile Include="src\origin\Game\politics.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="src\origin\Scene\pause.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\System\system.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\System\user.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\Scene\data_select.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\_Politics\armaments.cpp">
+      <Filter>Scene\Politics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\_Politics\funds.cpp">
+      <Filter>Scene\Politics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\_Politics\invasion.cpp">
+      <Filter>Scene\Politics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\_Politics\strategy.cpp">
+      <Filter>Scene\Politics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\Resource\telop.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\Scene\battle.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\Object\character.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\Resource\image.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="src\origin\Resource\map_chip.cpp">
+      <Filter>Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -160,41 +196,74 @@
       <Filter>_Header</Filter>
     </ClInclude>
     <ClInclude Include="src\origin\common.h" />
-    <ClInclude Include="src\origin\System\window_create.h">
-      <Filter>System</Filter>
+    <ClInclude Include="src\origin\Manager\scene_manager.h">
+      <Filter>Manager</Filter>
     </ClInclude>
-    <ClInclude Include="src\origin\Scene\scene_manager.h">
-      <Filter>Scene</Filter>
+    <ClInclude Include="src\origin\Manager\win_manager.h">
+      <Filter>Manager</Filter>
     </ClInclude>
-    <ClInclude Include="src\origin\Scene\title.h">
+    <ClInclude Include="src\origin\Object\collision.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\Resource\music.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\Scene\politics.h">
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\origin\Scene\result.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\origin\Object\collision.h">
-      <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="src\origin\Recource\music.h">
-      <Filter>Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="src\origin\Recource\graphic.h">
-      <Filter>Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="src\origin\System\game_manager.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="src\origin\Game\stage.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="src\origin\Scene\title.h">
+      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\origin\System\disp_number.hpp">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="src\origin\Game\system_data.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="src\origin\Manager\data_manager.h">
+      <Filter>Manager</Filter>
     </ClInclude>
-    <ClInclude Include="src\origin\Game\politics.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="src\origin\Scene\pause.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\Manager\game_manager.hpp">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\System\system.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\System\user.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\Scene\data_select.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\_Politics\armaments.h">
+      <Filter>Scene\Politics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\_Politics\funds.h">
+      <Filter>Scene\Politics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\_Politics\invasion.h">
+      <Filter>Scene\Politics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\_Politics\strategy.h">
+      <Filter>Scene\Politics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\Resource\image.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\Resource\telop.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\Scene\battle.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\Object\character.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\origin\Resource\map_chip.h">
+      <Filter>Resource</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

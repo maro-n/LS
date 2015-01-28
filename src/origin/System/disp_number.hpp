@@ -1,47 +1,54 @@
-//
-// システム（数値関係）
-//
 
 #pragma once
 #include "../common.h"
 #include <vector>
-#include <memory>
 
+//
+// システム（数値関係）
+//
 
-class DispNumber {
-  std::shared_ptr<Texture> number;
-  std::vector<short> val;
-  std::vector<short>::iterator it;
+class cDispNumber {
+  Texture number_;
+  std::vector<short> val_;
+  std::vector<short>::iterator it_;
   short i;
 
-  // 画像切り取りサイズ
   enum CutSize {
     Num_W = 32,   // Number Width
-    Num_H = 48,   // Number Height
+    Num_H = 40,   // Number Height
   };
 
 public:
-  DispNumber() :
-    number(std::make_shared<Texture>("res/png/sys01_number.png")) {}
+  cDispNumber() :
+    number_(Texture("res/png/sys02_number.png")) {}
 
   // 数値の表示
-  void disp_value(float x, float y,
-                  float scale = 1.0f,
-                  Color color = Color(1.0f, 1.0f, 1.0f, 1.0f)) {
-    for (it = val.begin(), i = 0; it != val.end(); ++it, ++i) {
-      drawTextureBox(x - i * (Num_W * scale), y, Num_W, Num_H,
-        0, (*it) * Num_H, Num_W, Num_H,
-        *number, color,
+  // pos : 表示させる座標ｘとｙ（中心点）
+  // scale : 画像の縮尺
+  // color : 色（red, green, blue, alpha）
+  void dispValue(const Vec2f& pos,
+                 const float& scale = 1.0f,
+                 const Color& color = Color(1.f, 1.f, 1.f, 1.f)) {
+
+    // TIPS: １の桁から一番大きい桁に向かって描画する（右から左に）
+    for (it_ = val_.begin(), i = 0; it_ != val_.end(); ++it_, ++i) {
+
+      drawTextureBox(pos.x() - i * (Num_W * scale), pos.y(),
+        Num_W, Num_H,
+        0, (*it_) * Num_H, Num_W, Num_H,
+        number_, color,
         0, Vec2f(scale, scale), Vec2f(Num_W / 2, Num_H / 2));
     }
   }
 
   // データの桁ごとに値を抽出
-  void init_value(int n) {
-    // 呼び出した時にデータが残っていたらリセット
-    if (val.size()) { val.clear(); }
+  void inputValue(int n) {
+    // TIPS: 呼び出した時にデータが残っていたら先にリセットする
+    if (val_.size()) { val_.clear(); }
+
+    // TIPS: 配列が空なので、必ず１つは要素を取得する
     do {
-      val.emplace_back(n % 10);
+      val_.emplace_back(n % 10);
       n /= 10;
     } while (n > 0);
   }

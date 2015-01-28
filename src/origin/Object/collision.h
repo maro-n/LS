@@ -1,6 +1,6 @@
 
 #pragma once
-#include "../System/window_create.h"
+#include "../Manager/win_manager.h"
 
 //
 // “–‚½‚è”»’è
