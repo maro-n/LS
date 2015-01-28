@@ -14,7 +14,9 @@ class cArmaments {
 
   Vec2f pos_;
   Vec2f size_;
-  float move_speed;
+  short i;
+  short v;
+  float move_speed[5];
   float alpha;
 
   std::string a_mode[5];

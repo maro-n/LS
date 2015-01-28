@@ -4,7 +4,9 @@
 // コンストラクタ
 cFunds::cFunds() {
 
-  move_speed = 270;
+  for (v = 0; v < 4; ++v){
+    move_speed[v] = 270;
+  }
   alpha = 0.f;
 
   size = Vec2f(200, 50);
@@ -16,7 +18,7 @@ cFunds::cFunds() {
 };
 
 void cFunds::update() {
-  if (move_speed > 0.f) { return; }
+  if (move_speed[3] > 0.f) { return; }
 
   for (i = 0; i < 4; ++i) {
     pos_.x() = -size::WIDTH / 2 + 2;
@@ -25,7 +27,9 @@ void cFunds::update() {
     if (box_to_cursor(pos_, size)) {
       if (win::app->isPushButton(Mouse::LEFT) && i == 3) {
         data::system.poli_mode_ = mode::Neutral;
-        move_speed = 270;
+        for (v = 0; v < 4; ++v){
+          move_speed[v] = 270;
+        }
         alpha = 0.f;
       }
     }
@@ -36,7 +40,7 @@ void cFunds::draw() {
   telop_.size(40);
 
   for (i = 0; i < 4; ++i) {
-    pos_.x() = -size::WIDTH / 2 + 2 - move_speed * (i + 1);
+    pos_.x() = -size::WIDTH / 2 + 2 - move_speed[i] * (i + 1);
     pos_.y() = size::HEIGHT / 2 - (i + 4) * 60;
 
     win::draw(pos_, size, box_to_cursor(pos_, size)
@@ -45,6 +49,15 @@ void cFunds::draw() {
     telop_.drawText(f_mode[i], pos_, win::color(paint::Black, alpha));
   }
 
-  if (move_speed > 0.f) { move_speed -= 9.f; }
-  if (alpha < 1.f) { alpha += 0.03f; }
+  for (i = 0; i < 4; ++i){
+    if (move_speed[i] > 0.f){
+      if (i == 0){
+        move_speed[i] -= 10.f;
+      }
+      else if (move_speed[i - 1] <= 270 / 1.5f){
+        move_speed[i] -= 10.f;
+      }
+    }
+  }
+  if (alpha < 1.f) { alpha += 0.025f; }
 }

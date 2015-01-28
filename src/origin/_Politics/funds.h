@@ -13,7 +13,8 @@ class cFunds {
   cTelop telop_;
 
   short i;
-  float move_speed;
+  short v;
+  float move_speed[4];
   float alpha;
   Vec2f pos_;
   Vec2f size;

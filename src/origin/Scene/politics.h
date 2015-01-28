@@ -17,7 +17,8 @@ class cPolitics {
   cTelop telop_;
 
   short i;
-  float move_speed;
+  short v;
+  float move_speed[5];
   float alpha;
   Vec2f pos_;
   Vec2f size_;

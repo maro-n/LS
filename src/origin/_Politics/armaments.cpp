@@ -4,7 +4,9 @@
 // コンストラクタ
 cArmaments::cArmaments() {
 
-  move_speed = 270;
+  for (v = 0; v < 5; ++v){
+    move_speed[v] = 270;
+  }
   alpha = 0.f;
 
   size_ = Vec2f(200, 50);
@@ -18,14 +20,18 @@ cArmaments::cArmaments() {
 };
 
 void cArmaments::update() {
-  for (short i = 0; i < 5; ++i) {
+  if (move_speed[4] > 0.f) { return; }
+
+  for (i = 0; i < 5; ++i) {
     pos_.x() = -size::WIDTH / 2 + 2;
     pos_.y() = size::HEIGHT / 2 - (i + 4) * 60;
 
     if (box_to_cursor(pos_, size_)) {
       if (win::app->isPushButton(Mouse::LEFT) && i == 4) {
         data::system.poli_mode_ = mode::Neutral;
-        move_speed = 270;
+        for (v = 0; v < 5; ++v){
+          move_speed[v] = 270;
+        }
         alpha = 0.f;
       }
     }
@@ -33,8 +39,8 @@ void cArmaments::update() {
 }
 
 void cArmaments::draw() {
-  for (int i = 0; i < 5; ++i) {
-    pos_.x() = -size::WIDTH / 2 + 2 - move_speed * (i + 1);
+  for (i = 0; i < 5; ++i) {
+    pos_.x() = -size::WIDTH / 2 + 2 - move_speed[i] * (i + 1);
     pos_.y() = size::HEIGHT / 2 - (i + 4) * 60;
 
     win::draw(pos_, size_, box_to_cursor(pos_, size_)
@@ -43,6 +49,15 @@ void cArmaments::draw() {
     telop_.drawText(a_mode[i], pos_, win::color(paint::Black, alpha));
   }
 
-  if (move_speed > 0.f) { move_speed -= 9.f; }
+  for (i = 0; i < 5; ++i){
+    if (move_speed[i] > 0.f){
+      if (i == 0){
+        move_speed[i] -= 10.f;
+      }
+      else if (move_speed[i - 1] <= 270 / 1.5f){
+        move_speed[i] -= 10.f;
+      }
+    }
+  }
   if (alpha < 1.f) { alpha += 0.03f; }
 }

@@ -14,7 +14,9 @@ class cStrategy {
 
   Vec2f pos_;
   Vec2f size;
-  float move_speed;
+  short i;
+  short v;
+  float move_speed[5];
   float alpha;
 
   std::string s_mode[5];
