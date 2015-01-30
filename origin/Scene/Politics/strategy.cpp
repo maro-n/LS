@@ -124,11 +124,8 @@ void strategy::buttonSelect() {
       ++state_;
       id_ = i;
     }
-    std::cout << fire_ << " " << cannon_ << " "
-      << trap_ << " " << poison_ << " " << money_ << std::endl;
-
-    create();
   }
+  create();
 }
 
 

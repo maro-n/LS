@@ -33,8 +33,6 @@ void fund::update() {
   if (!init_) { init(); }
   if (stateChange()) { return; }
   buttonSelect();
-  std::cout << fire_ << " " << cannon_ << " "
-    << trap_ << " " << poison_ << std::endl;
 }
 
 void fund::earn(){
@@ -129,6 +127,7 @@ void fund::buttonSelect() {
       id_ = i;
     }
   }
+  earn();
 }
 
 
