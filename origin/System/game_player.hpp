@@ -20,8 +20,23 @@ class cGamePlayer {
     // TIPS: BGM、SEデータを展開
     data::music.dataInit();
 
+    // TIPS: ゲームのクリアフラグをリセット
+    data::system.clear_ = false;
+
     // TIPS: 描画開始するシーンを指定
     data::sceneInit(scene::Politics);
+    scene_.init();
+
+    //TEST
+    {
+      //data::newGame(dif::EASY);
+      data::user.money_ = 100000;
+      data::user.strategy.fire_ = 10;
+      data::user.strategy.cannon_ = 10;
+      data::user.strategy.trap_ = 10;
+      data::user.strategy.poison_ = 10;
+      data::system.phase_ = phase::Win;
+    }
   }
 
 public:
@@ -33,8 +48,8 @@ public:
     systemInit();
 
     while (win::app->isOpen() && !scene_.exit()) {
-      scene_.init();
       scene_.update();
+      scene_.init();
       scene_.draw();
     }
   }

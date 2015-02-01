@@ -7,7 +7,8 @@ typedef cSceneManager  manager;
 cSceneManager::cSceneManager() :
 init_(false),
 now_scene_(data::system.scene_[play::Now]),
-next_scene_(data::system.scene_[play::Next]) {
+next_scene_(data::system.scene_[play::Next]),
+is_pause_(data::system.pause_) {
   anime.mode_ = fade::FadeIn;
   anime.time_ = 0;
   anime.alpha_ = 1.0f;
@@ -22,8 +23,7 @@ void manager::update() {
   win::mouseTranslate();
 
   // TIPS: ポーズ画面のとき、その他の入力を許可しない
-  pause_.update();
-  if (pause_.isPause()) { return; }
+  if (pause_.update()) { return; }
 
   // TIPS: 各シーンごとの更新処理
   switch (data::system.scene_[play::Now]) {
@@ -51,6 +51,7 @@ void manager::effectInit() {
     case scene::Result  : result_.init();   break;
     default: select_.init();
   }
+
   init_ = true;
 }
 
@@ -71,7 +72,7 @@ void manager::draw() {
   sceneChange();
 
   // TIPS: ポーズ中ならポーズ画面の描画
-  if (pause_.isPause()) { pause_.draw(); }
+  if (is_pause_) { pause_.draw(); }
 
   win::app->update();
 }

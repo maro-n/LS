@@ -85,6 +85,8 @@ public:
   std::string getName() const;
   u_short getLevel() const;
   sstream getLevelString() const;
+  u_short getHP() const;
+  u_short getHPMAX() const;
 
 
   /* パラメータ操作（設定）関係 */

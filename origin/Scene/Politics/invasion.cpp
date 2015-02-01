@@ -1,71 +1,166 @@
 
 #include "invasion.h"
 
+typedef cInvasion  inv;
 
-cInvasion::cInvasion() {
 
-  for (int y = 0; y < 3; ++y) {
-    for (int x = 0; x < 4; ++x) {
-      button[y][x] = Button(Vec2f(-size::WIDTH / 2 + 300 + (150 * x), size::HEIGHT / 2 - 200 - (150 * y)), win::color(paint::Red), 1);
-      on_box_y[y] = -1;
-      on_box_x[x] = -1;
-    }
-  }
+cInvasion::cInvasion() :
+icon_(Texture("res/png/world_icon.png")),
+size_(Vec2f(200, size::Command_H)),
+icon_size_(Vec2f(size::Icon_W, size::Icon_H)),
+mode_(data::system.poli_mode_),
+poli_state_(data::system.command_state_),
+pause_(data::system.pause_),
+stage_id_(data::system.stage_id_) {
 
-  r_x = data::random.fromZeroToLast(4);
-  r_y = data::random.fromZeroToLast(3);
+  telop_.size(40);
+  telop_.textInput("戻る ");
 
-  button[r_y][r_x].mode = 0;
-  button[r_y][r_x].color = win::color(paint::Blue);
-  cmd = Vec2f(-size::WIDTH / 2, 200);
-  size = Vec2f(200, 50);
-  color = win::color(paint::White);
-
+  init_ = false;
 };
 
-void cInvasion::update() {
 
-  color = win::color(paint::White);
+void inv::update() {
+  if (!init_) { init(); }
+  if (stateChange()) { return; }
+  buttonSelect();
+  back_command();
+}
 
-  for (int y = 0; y < 3; ++y) {
-    for (int x = 0; x < 4; ++x) {
-      on_box_y[y] = -1;
-      on_box_x[x] = -1;
-      if (rectOnMouse(button[y][x].pos, Vec2f(100, 100))) {
-        on_box_y[y] = y;
-        on_box_x[x] = x;
-        if (win::app->isPushButton(Mouse::LEFT)) {
-          if (button[y][x].mode != 0) {
-            data::system.scene_[play::Next] = scene::Battle;
-          }
-        }
-      }
 
-      if (rectOnMouse(cmd, size)) {
-        color = win::color(paint::Red);
-        if (win::app->isPushButton(Mouse::LEFT)) {
-          data::system.poli_mode_ = mode::Neutral;
-        }
-      }
+bool inv::stateChange() {
+  switch (state_) {
+    case command::MoveIn : moveMode();  break;
+    case command::Blink  : blinkMode(); break;
+    case command::MoveOut: backMode();  break;
+
+    default: return false;
+  }
+
+  return true;
+}
+
+
+void inv::moveMode() {
+  if (x > 0.f) { x -= 10.f; }
+
+  for (i = 0; i < design::AllStage; ++i) {
+    if (icon_y[i] > 0.f) { icon_y[i] -= 10.f; }
+  }
+  if (anime.alpha_ < 0.75f) { anime.alpha_ += 0.0125f; }
+
+  // TIPS: ボタンの移動が完了したら選択モードにする
+  if (icon_y[design::AllStage - 1] <= 0.f) { ++state_; }
+}
+
+
+void inv::blinkMode() {
+  ++anime.blink_;
+  if (anime.blink_ >= design::Fps) { ++state_; }
+}
+
+
+void inv::backMode() {
+  for (i = 0; i < design::AllStage; ++i) { icon_y[i] += 10.f; }
+  if (anime.alpha_ >= 0.f) { anime.alpha_ -= 0.05f; }
+  if (icon_y[design::AllStage - 1] >= design::DefaultPos * 2) {
+    if (id_ != Back) {
+      stage_id_ = id_;
+      data::system.scene_[play::Next] = scene::Battle;
+    }
+    mode_ = mode::Neutral;
+    poli_state_ = command::MoveIn;
+    init_ = false;
+  }
+}
+
+
+// 侵攻するマスの処理
+void inv::buttonSelect() {
+  for (i = 0; i < design::AllStage; ++i) {
+    buttonPosTranslate(i);
+
+    if (rectOnMouse(pos_, icon_size_) &&
+      win::app->isPushButton(Mouse::LEFT)) {
+      data::music.sePlay(se::Click);
+      ++state_;
+      id_ = i;
     }
   }
 }
 
-void cInvasion::draw() {
-  drawFillBox(cmd.x(), cmd.y(), size.x(), size.y(), color);
-  for (int y = 0; y < 3; ++y) {
-    for (int x = 0; x < 4; ++x) {
-      drawFillBox(button[y][x].pos.x(), button[y][x].pos.y(),
-        100, 100, button[y][x].color);
 
-      if (on_box_y[y] == y && on_box_x[x] == x) {
-        if (button[y][x].mode != 0) {
-          drawFillBox(button[y][x].pos.x(), button[y][x].pos.y(), 100, 100, win::color(paint::White, 0.5f));
-        }
-      }
-    }
+// 戻るボタンの処理
+void inv::back_command() {
+  pos_.x() = size::CommandPos_X - x;
+  pos_.y() = size::CommandPos_Y - 1.5f * (size_.y() + 10);
+
+  if (rectOnMouse(pos_, size_) &&
+    win::app->isPushButton(Mouse::LEFT)) {
+    data::music.sePlay(se::Click);
+    ++state_;
+    id_ = Back;
+  }
+}
+
+
+void inv::init() {
+  buttonPosInit();
+
+  anime.time_ = 0;
+  anime.blink_ = 0;
+  anime.alpha_ = 0.f;
+
+  state_ = command::MoveIn;
+  id_ = -1;
+  init_ = true;
+}
+
+
+// 侵攻するマス
+void inv::draw() {
+  for (i = 0; i < design::AllStage; ++i) {
+    buttonPosTranslate(i);
+
+    on_mouse_ = rectOnMouse(pos_, icon_size_);
+    if (state_ != command::Select || pause_) { on_mouse_ = false; }
+
+    flag_ = data::user.map_info[i].flag_;
+
+    drawTextureBox(pos_.x(), pos_.y(), size::Icon_W, size::Icon_H,
+      0, 0, size::Icon_W, size::Icon_H,
+      icon_, win::color(!flag_ ? on_mouse_ ? paint::Orange : paint::Red : paint::Blue,
+      id_ == i ? (anime.blink_ / 2) % 2 : 1.f));
   }
 
-  telop_.size(50);
-  telop_.drawText("もどる", Vec2f(-size::WIDTH / 2, 200), win::color(paint::Black));
+  disp_command();
+}
+
+
+// 戻るボタン
+void inv::disp_command() {
+  pos_.x() = size::CommandPos_X - x;
+  pos_.y() = size::CommandPos_Y - 1.5f * (size_.y() + 10);
+
+  on_mouse_ = rectOnMouse(pos_, size_);
+  if (state_ != command::Select || pause_) { on_mouse_ = false; }
+  win::draw(pos_, size_, win::color(on_mouse_ ? paint::Orange : paint::Blue,
+    id_ == Back ? (anime.blink_ / 2) % 2 : anime.alpha_), anime.alpha_ * 1.25f);
+
+  pos_.x() += (size_.x() - telop_.getTextLength()) / 2;
+  pos_.y() += 15;
+  telop_.drawText(pos_, win::color(paint::White,
+    id_ == Back ? (anime.blink_ / 2) % 2 : anime.alpha_ * 1.25f));
+}
+
+
+void inv::buttonPosTranslate(const short& i) {
+  pos_.x() = size::InvasionPos_X + (i % design::InvasionIcon_X) * size::Invasion_W;
+  pos_.y() = size::InvasionPos_Y - (i / design::InvasionIcon_X) * size::Invasion_H + icon_y[i];
+}
+
+
+void inv::buttonPosInit() {
+  x = design::DefaultPos;
+  for (i = 0; i < design::AllStage; ++i) { icon_y[i] = design::DefaultPos * 2; }
 }

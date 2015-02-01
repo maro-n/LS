@@ -30,6 +30,8 @@ void data::sceneInit(const state::SceneMode& scene0) {
   system.scene_[play::Last] = scene::None;
   system.scene_[play::Now]  = scene::None;
   system.scene_[play::Next] = scene0;
+
+  system.pause_ = false;
   system.poli_mode_ = mode::Neutral;
   system.phase_ = phase::Standby;
 }
@@ -43,20 +45,45 @@ void data::newGame(const dif& difficulty) {
   short r = random.fromZeroToLast(design::AllStage);
   for (short i = 0; i < design::AllStage; ++i) {
     user.map_info[i].flag_ = (r == i) ? true : false;
-    user.map_info[i].id_ = random.fromZeroToLast(3);
+    user.map_info[i].id_ = random.fromZeroToLast(9999) % 3;
   }
 
   user.count.clear_ = 0;
   user.count.battle_ = 0;
-  user.count.turn_ = 0;
+  user.count.command_ = 0;
 
-  user.assets.money_ = 1000;
-  user.assets.food_ = 10;
+  user.money_ = 1000;
 
   user.strategy.poison_ = 0;
   user.strategy.fire_ = 0;
   user.strategy.cannon_ = 0;
-  user.strategy.spy_ = true;
+  user.strategy.spy_ = false;
+
+  for (short i = 0; i < design::AllStage; ++i) { user.wasInvasion[i] = false; }
+
+  user.player.clear();
+}
+
+
+// 強くてニューゲーム
+void data::reStart(const dif& difficulty) {
+  user.dif_ = difficulty;
+
+  // TIPS: 乱数を使ってステージの状態を設定
+  short r = random.fromZeroToLast(design::AllStage);
+  for (short i = 0; i < design::AllStage; ++i) {
+    user.map_info[i].flag_ = (r == i) ? true : false;
+    user.map_info[i].id_ = random.fromZeroToLast(9999) % 3;
+  }
+
+  ++user.count.clear_;
+  user.count.battle_ = 0;
+  user.count.command_ = 0;
+
+  for (short i = 0; i < design::AllStage; ++i) { user.wasInvasion[i] = false; }
+
+  // TIPS: クリア済みフラグをリセット
+  system.clear_ = false;
 }
 
 
@@ -114,10 +141,10 @@ bool data::saveUserData(const short& num) {
     fstr
       << user.count.clear_
       << user.count.battle_
-      << user.count.turn_;
+      << user.count.command_;
 
     // TIPS: 資金など、政策画面に関わるデータを保存
-    fstr << user.assets.money_ << user.assets.food_;
+    fstr << user.money_;
 
     // TIPS: 作戦コマンドのデータを保存
     fstr
@@ -179,10 +206,10 @@ bool data::loadUserData(const short& num) {
     fstr
       >> user.count.clear_
       >> user.count.battle_
-      >> user.count.turn_;
+      >> user.count.command_;
 
     // TIPS: 資金など、政策画面に関わるデータを取得
-    fstr >> user.assets.money_ >> user.assets.food_;
+    fstr >> user.money_;
 
     // TIPS: 作戦コマンドのデータを取得
     fstr

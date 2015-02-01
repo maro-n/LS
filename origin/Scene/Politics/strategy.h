@@ -17,6 +17,7 @@ class cStrategy {
   const Vec2f size_;
   bool on_mouse_;
   bool init_;
+  bool is_develop_;
 
   enum {
     Fire,
@@ -37,14 +38,13 @@ class cStrategy {
 
   mode& mode_;
   short& poli_state_;
+  bool& pause_;
   short state_;
   short id_;
 
   float x[All_Text];
 
   u_int& money_;
-  u_short& food_;
-
   u_short& fire_;
   u_short& cannon_;
   u_short& trap_;
@@ -52,16 +52,23 @@ class cStrategy {
 
   void init();
 
-  void create();
-
   bool stateChange();
   void moveMode();
   void blinkMode();
   void backMode();
   void buttonSelect();
 
+  void paymentMoney();
+  void is_fire();
+  void is_bomb();
+  void is_trap();
+  void is_poison();
+
+  void isAbleToDevelop(const short&);
   void buttonPosTranslate(const short&);
   void buttonPosInit();
+
+  void disp_telop(const short&);
 
 public:
   cStrategy();

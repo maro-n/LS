@@ -1,5 +1,6 @@
 
 #include "collision.h"
+#include "../System/data_depot.h"
 
 //
 // “–‚½‚è”»’èiÀ‘•j

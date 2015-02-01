@@ -42,7 +42,7 @@ public:
 
     se_[se::Click]      = Media("res/wav/click_1.wav");
     se_[se::Click_Menu] = Media("res/wav/click_2.wav");
-    //se_[se::]=Media("res/wav/.wav");
+    se_[se::MouseOn]    = Media("res/wav/mouse_on.wav");
 
     for (short i = 0; i < se::All_SE; ++i) { se_[i].gain(0.5f); }
 

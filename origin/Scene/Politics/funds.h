@@ -13,7 +13,6 @@ class cFunds {
   cTelop telop_;
 
   short i;
-  short Worker_count;
   Vec2f pos_;
   const Vec2f size_;
   bool on_mouse_;
@@ -21,10 +20,10 @@ class cFunds {
 
   enum {
     Worker,
-    Sell_fire,
-    Sell_bomb,
-    Sell_trap,
-    Sell_poison,
+    Sell_Fire,
+    Sell_Bomb,
+    Sell_Trap,
+    Sell_Poison,
     Back,
 
     All_Text,
@@ -39,22 +38,20 @@ class cFunds {
 
   mode& mode_;
   short& poli_state_;
+  bool& pause_;
   short state_;
   short id_;
 
   float x[All_Text];
 
   u_int& money_;
-  u_short& food_;
-
   u_short& fire_;
   u_short& cannon_;
   u_short& trap_;
   u_short& poison_;
+  bool is_sell_;
 
   void init();
-
-  void earn();
 
   bool stateChange();
   void moveMode();
@@ -62,8 +59,18 @@ class cFunds {
   void backMode();
   void buttonSelect();
 
+  void incomeMoney();
+  void is_worker();
+  void is_fire();
+  void is_bomb();
+  void is_trap();
+  void is_poison();
+
+  void isAbleToSell(const short&);
   void buttonPosTranslate(const short&);
   void buttonPosInit();
+
+  void disp_telop(const short&);
 
 public:
   cFunds();

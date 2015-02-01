@@ -37,6 +37,7 @@ class cArmaments {
 
   mode& mode_;
   short& poli_state_;
+  bool& pause_;
   short state_;
   short id_;
 

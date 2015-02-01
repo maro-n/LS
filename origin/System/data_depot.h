@@ -29,6 +29,7 @@ public:
   static void bugProof();
   static void sceneInit(const state::SceneMode&);
   static void newGame(const dif&);
+  static void reStart(const dif&);
 
   static void slotCheck();
   static bool saveUserData(const short&);

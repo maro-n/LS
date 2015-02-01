@@ -9,37 +9,53 @@
 // êNçU
 //
 
-struct Button {
-  Vec2f pos;
-  Color color;
-  int mode;
-
-  Button() {}
-  Button(Vec2f pos0, Color col, int m) {
-    pos = pos0;
-    color = col;
-    mode = m;
-  }
-};
-
 class cInvasion {
+  Texture icon_;
   cTelop telop_;
 
-  Vec2f cmd;
-  Button button[3][4];
-  Vec2f size;
-  Color color;
+  short i;
+  Vec2f pos_;
+  const Vec2f size_;
+  const Vec2f icon_size_;
+  bool on_mouse_;
+  bool init_;
 
-  int r_x;
-  int r_y;
-  int on_box_y[3];
-  int on_box_x[4];
-  int click_pos[3][4];
+  mode& mode_;
+  short& poli_state_;
+  bool& pause_;
+  u_short& stage_id_;
+  bool flag_;
+
+  enum { Back = -2 };
+  short state_;
+  short id_;
+
+  float x;
+  float icon_y[design::AllStage];
+
+  struct {
+    short time_;
+    short blink_;
+    float alpha_;
+  } anime;
+
+  void init();
+
+  bool stateChange();
+  void moveMode();
+  void blinkMode();
+  void backMode();
+  void buttonSelect();
+
+  void back_command();
+  void disp_command();
+
+  void buttonPosTranslate(const short&);
+  void buttonPosInit();
 
 public:
   cInvasion();
 
   void update();
   void draw();
-  void win();
 };

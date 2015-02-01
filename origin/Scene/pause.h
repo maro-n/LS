@@ -12,6 +12,15 @@
 class cPause {
   cTelop telop_;
 
+  short i;
+  short button_;
+  Vec2f pos_;
+  const Vec2f size_;
+
+  scene& scene_;
+  bool& pause_;
+  bool on_mouse_;
+
   enum {
     Pause,
     Button_1,
@@ -22,33 +31,29 @@ class cPause {
   };
   std::string text[6];
 
-  short i;
-  short button_;
-  Vec2f pos_;
-  scene& play_scene_;
-  bool pause_;
-  bool click_;
+  enum {
+    Select,
+    Clicked,
+  };
+  short state_;
 
-  void quitGame();
+  void pauseMenu();
+  void commandShift(const short&);
+  void backToGame();
+  void backToTitle();
+
   void battleMenu();
+  void hoge();
 
-  void draw_bg();
-
+  void disp_back();
   void scenePolitics();
-  void draw_button();
-  void draw_telop();
-
   void sceneBattle();
-  void draw_command();
-  void draw_explanation();
 
-  void buttonChange();
+  void buttonPosTranslate(const short&);
 
 public:
   cPause();
 
-  bool isPause();
-
-  void update();
+  bool update();
   void draw();
 };

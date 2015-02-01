@@ -12,7 +12,7 @@ class cTelop {
   sstream num_;
 
 public:
-  cTelop() : font_(FONT_) {}
+  cTelop() : font_(FONT_, Font::BUFFER) {}
 
   // フォントサイズを指定
   void size(const int& size0) {

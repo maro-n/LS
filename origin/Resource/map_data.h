@@ -8,11 +8,13 @@
 
 class cMapData {
   Texture back_ground_;
-  Texture map_;
+  Texture map[3];
+
+  short map_id_;
 
 public:
   cMapData();
 
-  bool mapInit(const u_short&);
+  void mapInit(const u_short&);
   void draw(const float&);
 };

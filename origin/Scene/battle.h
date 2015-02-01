@@ -21,7 +21,6 @@ class cBattle {
   std::vector<cCharacter>::iterator target, begin_, end_;
 
   float camera_x_;
-  u_short& exp_;
 
   struct {
     u_short time_;

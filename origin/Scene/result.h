@@ -10,8 +10,27 @@
 //
 
 class cResult {
-  cTelop telop_;
   Texture bg_;
+  cTelop telop_;
+  cTelop info_;
+
+  enum {
+    Result,
+    Win,
+    Lose,
+    Clear,
+
+    Telop1,
+    Telop2,
+    Telop3,
+    All_Text,
+  };
+  std::string text[All_Text];
+
+  Vec2f pos_;
+  const Vec2f size_;
+  bool on_mouse_;
+  bool result_;
 
   struct {
     u_short wait_;
@@ -20,25 +39,48 @@ class cResult {
     float alpha_;
   } anime;
 
-  enum ClickState {
-    Start,
+  enum AnimeState {
+    FadeIn,
+    Wait,
+    Blink,
+    FadeOut,
   };
   short state_;
 
+  scene& next_;
   phase& phase_;
-  u_short& exp_;
+  u_short& stage_id_;
+  bool& ending_;
 
-  short level_up_;
-  Vec2f pos_;
+  short rank_;
+  u_short& battle_;
+  u_short& command_;
+  short& dif_;
 
-  void phaseWin();
-  void phaseLose();
+  // äeêwâcÇÃÉåÉxÉãïΩãœíl
+  struct {
+    u_short player_;
+    u_short enemy_;
+  } lv_average;
 
-  bool isLevelUp();
+  bool stateChange();
+  void fadeInMode();
+  void blinkMode();
+  void fadeOutMode();
 
-  void disp_bg();
+  void musicPlay();
+  void levelAverage();
+  bool stageCount();
+
+  void disp_back();
   void disp_logo();
-  void disp_telop();
+  void disp_ending();
+  void disp_score();
+  void disp_clear();
+  void disp_button();
+
+  std::string getRank();
+  short getRankColor();
 
 public:
   cResult();

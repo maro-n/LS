@@ -1,18 +1,24 @@
 
 #include "politics.h"
 
+#include <iostream>
+
 typedef cPolitics  politics;
 
 
 cPolitics::cPolitics() :
 bg_(Texture("res/png/world_map.png")),
+smoke_(Texture("res/png/world_fog.png")),
 sea_(Texture("res/png/world_sea.png")),
 fog_(Texture("res/png/world_sea_fog.png")),
+icon_(Texture("res/png/battle_icon.png")),
 size_(Vec2f(200, size::Command_H)),
 mode_(data::system.poli_mode_),
-state_(data::system.command_state_) {
+state_(data::system.command_state_),
+pause_(data::system.pause_) {
 
   telop_.size(40);
+  unit_.size(24);
 
   text[mode::Funds]      = "資金繰り ";
   text[mode::Armaments]  = "軍備 ";
@@ -20,6 +26,11 @@ state_(data::system.command_state_) {
   text[mode::Invasion]   = "侵攻 ";
   text[mode::DataSelect] = "データ ";
   text[mode::Neutral]    = "選択 ";
+
+  icon_name[0] = "火：";
+  icon_name[1] = "砲：";
+  icon_name[2] = "罠：";
+  icon_name[3] = "毒：";
 
   choice[Save] = "セーブ ";
   choice[Load] = "ロード ";
@@ -111,6 +122,7 @@ void politics::commandChange(const mode& it) {
   anime.blink_ = 0;
   id_ = mode::Neutral;
   ++state_;
+  if (mode_ == mode::DataSelect) { state_ = command::MoveIn; }
 }
 
 
@@ -142,9 +154,15 @@ void politics::draw() {
     case mode::Armaments : armaments_.draw(); break;
     case mode::Strategy  : strategy_.draw();  break;
     case mode::Invasion  : invasion_.draw();  break;
-    case mode::DataSelect: disp_select();     break;
+    //case mode::DataSelect: disp_select();     break;
     default: disp_button(); disp_telop();
   }
+
+  // TIPS: 侵攻コマンド選択中はウィンドウの情報を表示しない
+  if (mode_ == mode::Invasion) { return; }
+
+  info_strategy();
+  info_unit();
 }
 
 
@@ -182,75 +200,129 @@ void politics::disp_back() {
     0, 0, size::World_W, size::World_H,
     bg_, win::color(paint::Orange));
 
+  // 雲
+  drawTextureBox(-size::Half_W, -size::Half_H, size::WIDTH, size::HEIGHT,
+    anime.scroll_, 0, size::Sea_W, size::Sea_H,
+    smoke_, win::color(paint::White, 0.5f));
+
   // コマンド解説用のウィンドウ
   // TIPS: とりあえずウィンドウだけを表示
   //     : 各コマンドの処理に入った時、それぞれ別々に表示させる
   win::draw(Vec2f(size::BottomPos_X, size::BottomPos_Y),
     Vec2f(size::Bottom_W, size::Bottom_H),
-    win::color(paint::Green, 0.75f));
+    win::color(paint::Gray, 0.75f));
 }
 
 
 void politics::disp_mode() {
   pos_.x() = size::CommandPos_X;
   pos_.y() = size::CommandPos_Y;
-  win::draw(pos_, size_, win::color(paint::Green, 0.75f));
+  win::draw(pos_, size_, win::color(paint::Brown, 0.75f));
 
   pos_.x() += (size_.x() - telop_.getTextLength(text[short(mode_)])) / 2;
   pos_.y() += 15;
-  telop_.drawText(text[short(mode_)], pos_, win::color(paint::Gray));
+  telop_.drawText(text[short(mode_)], pos_, win::color(paint::White));
 }
 
 
 // プレイヤーの情報
 void politics::disp_info() {
+  // TIPS: 侵攻コマンド選択中はウィンドウの情報を表示しない
+  if (mode_ == mode::Invasion) { return; }
 
   // ウィンドウ
   win::draw(Vec2f(0, size::BottomPos_Y + size::Bottom_H + 10),
     Vec2f(size::Half_W - 10, size::HEIGHT - (size::Bottom_H + 30)),
-    win::color(paint::Green, 0.75f));
+    win::color(paint::Gray, 0.75f));
 
-  //TODO:プレイヤー情報の表示
+  // TIPS: 所持金以外のデータは演出をかけるので、別に描画を行う
+  info_money();
 }
 
 
-void politics::disp_button() {
-  for (i = 0; i < mode::Neutral; ++i) {
-    buttonPosTranslate(i);
+void politics::info_money() {
+  pos_.x() = size::DataPos_X;
+  pos_.y() = size::DataPos_Y;
+  unit_.drawText("所持金", pos_, win::color(paint::White));
 
-    on_mouse_ = rectOnMouse(pos_, size_);
-    if (state_ != command::Select) { on_mouse_ = false; }
-    win::draw(pos_, size_, win::color(on_mouse_ ? paint::Orange : paint::Blue,
-      id_ == i ? (anime.blink_ / 2) % 2 : anime.alpha_), anime.alpha_ * 1.25f);
+  sstream money;
+  money << std::setw(8) << data::user.money_ << " G";
 
-    pos_.x() += (size_.x() - telop_.getTextLength(text[i])) / 2;
-    pos_.y() += 15;
-    telop_.drawText(text[i], pos_, win::color(paint::White,
-      id_ == i ? (anime.blink_ / 2) % 2 : 1.f));
+  pos_.y() -= size::Icon_H * 0.75f;
+  unit_.drawNumber(money, pos_, win::color(paint::White));
+}
+
+
+void politics::info_strategy() {
+  for (i = 0; i < 4; ++i) {
+    pos_.x() = size::DataPos_X + (i % 2 + 1) * 160;
+    pos_.y() = size::DataPos_Y - size::Icon_H * (i / 2) * 0.75f;
+
+    drawTextureBox(pos_.x(), pos_.y(), size::Icon_W / 2, size::Icon_H / 2,
+      size::Icon_W * i, 0, size::Icon_W, size::Icon_H,
+      icon_, win::color(paint::White));
+
+    short val;
+    switch (i) {
+      case 0: val = data::user.strategy.fire_;   break;
+      case 1: val = data::user.strategy.cannon_; break;
+      case 2: val = data::user.strategy.trap_;   break;
+      case 3: val = data::user.strategy.poison_; break;
+      default: val = 0;
+    }
+
+    pos_.x() += 40;
+    sstream temp;
+    temp << icon_name[i] << std::setw(3) << val;
+    unit_.drawNumber(temp, pos_, win::color(paint::White));
   }
 }
 
 
-void politics::disp_select() {
-  for (i = 0; i < All_Command; ++i) {
+void politics::info_unit() {
+  begin_ = data::user.player.begin();
+  end_ = data::user.player.end();
+  for (it_ = begin_, i = 0; it_ != end_; ++it_, ++i) {
+    pos_.x() = size::DataPos_X;
+    pos_.y() = size::DataPos_Y - size::UnitData_Y * (i + 1.25f);
+
+    sstream name;
+    name << " LV: " << it_->getLevel() << "  " << it_->getName();
+    unit_.drawNumber(name, pos_, win::color(paint::White));
+
+    pos_.x() += 250;
+    sstream hp;
+    hp << " HP: " << std::setw(4) << it_->getHP() << " / " << it_->getHPMAX();
+    unit_.drawNumber(hp, pos_, win::color(paint::White));
+
+    pos_.x() -= 230;
+    pos_.y() -= 30;
+    win::gaugeDraw(pos_, Vec2f(400, 24), it_->hpGaugeRatio(), it_->hpColor());
+  }
+}
+
+
+void politics::disp_button() {
+  select_ = mode_ == mode::DataSelect;
+  for (i = 0; i < (select_ ? All_Command : mode::Neutral); ++i) {
     buttonPosTranslate(i);
 
     on_mouse_ = rectOnMouse(pos_, size_);
-    if (state_ != command::Select) { on_mouse_ = false; }
+    if (state_ != command::Select || pause_) { on_mouse_ = false; }
     win::draw(pos_, size_, win::color(on_mouse_ ? paint::Orange : paint::Blue,
       id_ == i ? (anime.blink_ / 2) % 2 : anime.alpha_), anime.alpha_ * 1.25f);
 
-    pos_.x() += (size_.x() - telop_.getTextLength(choice[i])) / 2;
+    pos_.x() += (size_.x() - telop_.getTextLength(select_ ? choice[i] : text[i])) / 2;
     pos_.y() += 15;
-    telop_.drawText(choice[i], pos_, win::color(paint::White,
+    telop_.drawText(select_ ? choice[i] : text[i], pos_, win::color(paint::White,
       id_ == i ? (anime.blink_ / 2) % 2 : 1.f));
   }
 }
 
 
 // 各コマンドの解説テロップ
+// TIPS: この関数で表示するのはコマンド選択の解説のみ
 void politics::disp_telop() {
-  //TODO:ボタンにマウスを乗せた時、各ボタンごとの説明を表示
 }
 
 

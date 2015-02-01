@@ -9,7 +9,8 @@ bg_(Texture("res/png/world_map.png")),
 sea_(Texture("res/png/world_sea.png")),
 fog_(Texture("res/png/world_sea_fog.png")),
 logo_(Texture("res/png/back_title_logo.png")),
-size_(Vec2f(size::Mode_W, size::Mode_H)) {
+size_(Vec2f(size::Mode_W, size::Mode_H)),
+clear_(data::system.clear_) {
 
   telop_.size(60);
 
@@ -92,7 +93,8 @@ void title::modeSelect() {
 
 void title::sceneChange() {
   if (state_ > Blink3) {
-    data::newGame(dif(click_mode_ - Easy));
+    clear_ ? data::reStart(dif(click_mode_ - Easy)) :
+      data::newGame(dif(click_mode_ - Easy));
     data::system.scene_[play::Next] = scene::Politics;
   }
 

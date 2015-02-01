@@ -5,11 +5,13 @@ typedef cBattle  battle;
 
 
 cBattle::cBattle() :
-enemy_num_(0), camera_x_(0.f), exp_(data::system.exp_) {
+enemy_num_(0), camera_x_(0.f) {
   data::system.phase_ = phase::Standby;
 
   //TEST
   {
+    data::user.player.emplace_back();
+    data::user.player.emplace_back();
     data::user.player.emplace_back();
     data::user.player.emplace_back();
     data::user.player.emplace_back();
@@ -21,17 +23,16 @@ enemy_num_(0), camera_x_(0.f), exp_(data::system.exp_) {
     {
       sParameter bonus(10);
 
-      player_.name_ = "‚È‚ñ‚¾‚©";
+      player_.name_ = "—EŽÒ‚Ì[‚Ô";
       player_.side_ = true;
       player_.type_ = type::Fighter;
       player_.gender_ = gen::Male;
 
       data::user.player[0].making(player_);
-      data::user.player[0].growth(bonus);
-      data::user.player[0].init(Vec2f(280, 200));
+      data::user.player[0].growth(sParameter(100));
       data::user.player[0].init(Vec2f(-300, 200));
 
-      player_.name_ = "‚¢‚¯‚»‚¤‚È";
+      player_.name_ = "‚Ù‚°‚Ù‚°";
       player_.side_ = true;
       player_.type_ = type::Mage;
       player_.gender_ = gen::Female;
@@ -41,7 +42,7 @@ enemy_num_(0), camera_x_(0.f), exp_(data::system.exp_) {
       data::user.player[1].init(Vec2f(-300, 50));
       data::user.player[1].laneShift();
 
-      player_.name_ = "‚«‚ª‚·‚é";
+      player_.name_ = "‚Ó‚ª‚Ó‚ª";
       player_.side_ = true;
       player_.type_ = type::Scout;
       player_.gender_ = gen::Male;
@@ -49,6 +50,24 @@ enemy_num_(0), camera_x_(0.f), exp_(data::system.exp_) {
       data::user.player[2].making(player_);
       data::user.player[2].growth(bonus);
       data::user.player[2].init(Vec2f(-300, -100));
+
+      player_.name_ = "‚Ò‚æ‚Ò‚æ";
+      player_.side_ = true;
+      player_.type_ = type::Fighter;
+      player_.gender_ = gen::Male;
+
+      data::user.player[3].making(player_);
+      data::user.player[3].growth(bonus);
+      data::user.player[3].init(Vec2f(-300, 200));
+
+      player_.name_ = "‘Sˆõ‚â‚Î‚¢";
+      player_.side_ = true;
+      player_.type_ = type::Fighter;
+      player_.gender_ = gen::Male;
+
+      data::user.player[4].making(player_);
+      data::user.player[4].growth(bonus);
+      data::user.player[4].init(Vec2f(-300, 200));
     }
 
     sCharacterInfo enemy_;
@@ -127,27 +146,12 @@ void battle::battleFinish() {
   if (dead.enemy_ == data::system.enemy.size()) {
     data::system.phase_ = phase::Win;
     data::system.scene_[play::Next] = scene::Result;
-
-    begin = data::user.player.begin();
-    end = data::user.player.end();
-    for (it = begin; it != end; ++it) {
-      if (it->isDead()) { continue; }
-      it->expCount(exp_);
-    }
   }
 
   // TIPS: ”s–k”»’è...–¡•û‚ª‘S–Å
   if (dead.player_ == data::user.player.size()) {
     data::system.phase_ = phase::Lose;
     data::system.scene_[play::Next] = scene::Result;
-    exp_ /= 2;
-
-    begin = data::user.player.begin();
-    end = data::user.player.end();
-    for (it = begin; it != end; ++it) {
-      if (it->isDead()) { continue; }
-      it->expCount(exp_);
-    }
   }
 }
 
@@ -258,13 +262,16 @@ void battle::init() {
   // TODO: ‚»‚Ì‘¼‚Ì‰Šú‰»ˆ—‚ð’Ç‰Á
   countInit();
   camera_x_ = 0.f;
+
+  data::music.stop();
+  data::music.play(data::random.fromFirstToLast(bgm::Battle1, bgm::Battle3));
 }
 
 
 void battle::draw() {
-  ++anime.time_;
-  if (anime.time_ >= size::WIDTH * 2) { anime.time_ = 0; }
-  //map_data_.draw(anime.time_);
+  //++anime.time_;
+  //if (anime.time_ >= size::WIDTH * 2) { anime.time_ = 0; }
+  map_data_.draw(anime.time_);
 
   dispUnitInfo();
 

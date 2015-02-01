@@ -32,6 +32,7 @@ class cSceneManager {
 
   scene& now_scene_;
   scene& next_scene_;
+  bool& is_pause_;
 
   bool sceneShift();
   void sceneChange();

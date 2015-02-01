@@ -8,16 +8,16 @@ cStrategy::cStrategy() :
 size_(Vec2f(200, size::Command_H)),
 mode_(data::system.poli_mode_),
 poli_state_(data::system.command_state_),
-money_(data::user.assets.money_),
-food_(data::user.assets.food_),
+money_(data::user.money_),
 fire_(data::user.strategy.fire_),
 cannon_(data::user.strategy.cannon_),
 trap_(data::user.strategy.trap_),
-poison_(data::user.strategy.poison_) {
+poison_(data::user.strategy.poison_),
+pause_(data::system.pause_) {
 
   telop_.size(40);
 
-  text[Fire]   = "火炎瓶 ";
+  text[Fire]   = "火計 ";
   text[Bomb]   = "砲撃 ";
   text[Trap]   = "罠 ";
   text[Poison] = "毒 ";
@@ -33,41 +33,6 @@ void strategy::update() {
   buttonSelect();
 }
 
-void strategy::create(){
-  switch (id_){
-  case Fire:
-    if (money_ >= price::Fire){
-      money_ -= price::Fire;
-      ++fire_;
-    }
-    break;
-
-  case Bomb:
-    if (money_ >= price::Bomb){
-      money_ -= price::Bomb;
-      ++cannon_;
-    }
-    break;
-
-  case Trap:
-    if (money_ >= price::Trap){
-      money_ -= price::Trap;
-      ++trap_;
-    }
-    break;
-
-  case Poison:
-    if (money_ >= price::Poison){
-      money_ -= price::Poison;
-      ++poison_;
-    }
-    break;
-
-  default:; //do not
-
-  }
-
-}
 
 bool strategy::stateChange() {
   switch (state_) {
@@ -117,15 +82,54 @@ void strategy::backMode() {
 void strategy::buttonSelect() {
   for (i = 0; i < All_Text; ++i) {
     buttonPosTranslate(i);
+    isAbleToDevelop(i);
 
-    if (rectOnMouse(pos_, size_) &&
-      win::app->isPushButton(Mouse::LEFT)) {
+    // TIPS: 開発できる状態でなければ、クリックを許可しない
+    if (rectOnMouse(pos_, size_) && is_develop_ &&
+        win::app->isPushButton(Mouse::LEFT)) {
       data::music.sePlay(se::Click);
       ++state_;
       id_ = i;
+      paymentMoney();
     }
   }
-  create();
+}
+
+
+void strategy::paymentMoney() {
+  switch (id_) {
+    case   Fire: is_fire();   break;
+    case   Bomb: is_bomb();   break;
+    case   Trap: is_trap();   break;
+    case Poison: is_poison(); break;
+
+    // 戻るボタンの時は何もしない
+    default:;
+  }
+}
+
+
+void strategy::is_fire() {
+  money_ -= price::Fire;
+  ++fire_;
+}
+
+
+void strategy::is_bomb() {
+  money_ -= price::Bomb;
+  ++cannon_;
+}
+
+
+void strategy::is_trap() {
+  money_ -= price::Trap;
+  ++trap_;
+}
+
+
+void strategy::is_poison() {
+  money_ -= price::Poison;
+  ++poison_;
 }
 
 
@@ -145,16 +149,34 @@ void strategy::init() {
 void strategy::draw() {
   for (i = 0; i < All_Text; ++i) {
     buttonPosTranslate(i);
+    isAbleToDevelop(i);
 
     on_mouse_ = rectOnMouse(pos_, size_);
-    if (state_ != command::Select) { on_mouse_ = false; }
-    win::draw(pos_, size_, win::color(on_mouse_ ? paint::Orange : paint::Blue,
+    if (state_ != command::Select || pause_) { on_mouse_ = false; }
+    win::draw(pos_, size_, win::color(!is_develop_ ? paint::Gray
+      : on_mouse_ ? paint::Orange : paint::Blue,
       id_ == i ? (anime.blink_ / 2) % 2 : anime.alpha_), anime.alpha_ * 1.25f);
 
     pos_.x() += (size_.x() - telop_.getTextLength(text[i])) / 2;
     pos_.y() += 15;
     telop_.drawText(text[i], pos_, win::color(paint::White,
       id_ == i ? (anime.blink_ / 2) % 2 : 1.f));
+
+    if (on_mouse_) { disp_telop(i); }
+  }
+}
+
+
+void strategy::isAbleToDevelop(const short& i) {
+  switch (i) {
+    case   Fire: is_develop_ = money_ >= price::Fire;   break;
+    case   Bomb: is_develop_ = money_ >= price::Bomb;   break;
+    case   Trap: is_develop_ = money_ >= price::Trap;   break;
+    case Poison: is_develop_ = money_ >= price::Poison; break;
+
+    // TIPS: まとめて判定処理をしている関係で、
+    //     : 戻るボタンまで使えなくなるので、常にクリック可能にしておく
+    default: is_develop_ = true;
   }
 }
 
@@ -167,4 +189,64 @@ void strategy::buttonPosTranslate(const short& i) {
 
 void strategy::buttonPosInit() {
   for (i = 0; i < All_Text; ++i) { x[i] = design::DefaultPos; }
+}
+
+
+void strategy::disp_telop(const short& id) {
+  std::string text_1;   // １行目のテキスト
+  std::string text_2;   // ２行目のテキスト
+
+  pos_.x() = size::BottomPos_X + 20;
+  pos_.y() = size::BottomPos_Y + 85;
+
+  // TIPS: 各ボタンの解説
+  //TODO: 必要な処理をコピペで作成（終わったらこのTODOコメントを削除）
+  switch (id) {
+    case Fire:
+      text_1 = is_develop_ ?
+        "開発費：1000 G" : "開発費：1000 G  開発できません。";
+      telop_.drawText(text_1, pos_, win::color(paint::White));
+
+      // TIPS: 以下、２行目のテキスト
+      text_2 = "敵単体に対してダメージを与える。";
+      pos_.y() -= 60;
+      telop_.drawText(text_2, pos_, win::color(paint::White));
+      break;
+
+    case Bomb:
+      text_1 = is_develop_ ?
+        "開発費：3000 G" : "開発費：3000 G　開発できません。";
+      telop_.drawText(text_1, pos_, win::color(paint::White));
+
+      // TIPS: 以下、２行目のテキスト
+      text_2 = "敵全体に対してダメージを与える。";
+      pos_.y() -= 60;
+      telop_.drawText(text_2, pos_, win::color(paint::White));
+      break;
+
+    case Trap:
+      text_1 = is_develop_ ?
+        "開発費： 800 G" : "開発費： 800 G　開発できません。";
+      telop_.drawText(text_1, pos_, win::color(paint::White));
+
+      // TIPS: 以下、２行目のテキスト
+      text_2 = "敵単体の動きを一定時間停止する。";
+      pos_.y() -= 60;
+      telop_.drawText(text_2, pos_, win::color(paint::White));
+      break;
+
+    case Poison:
+      text_1 = is_develop_ ?
+        "開発費：1500 G" : "開発費：1500 G　開発できません。";
+      telop_.drawText(text_1, pos_, win::color(paint::White));
+
+      // TIPS: 以下、２行目のテキスト
+      text_2 = "敵単体のステータスを一定時間ダウンさせる。";
+      pos_.y() -= 60;
+      telop_.drawText(text_2, pos_, win::color(paint::White));
+      break;
+
+    // 戻るボタンは解説不要
+    default:;
+  }
 }

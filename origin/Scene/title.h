@@ -20,6 +20,7 @@ class cTitle {
   Vec2f pos_;
   const Vec2f size_;
   bool on_mouse_;
+  bool& clear_;
 
   enum {
     Click,

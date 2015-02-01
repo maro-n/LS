@@ -8,7 +8,8 @@ cArmaments::cArmaments() :
 size_(Vec2f(200, size::Command_H)),
 mode_(data::system.poli_mode_),
 poli_state_(data::system.command_state_),
-money_(data::user.assets.money_) {
+money_(data::user.money_),
+pause_(data::system.pause_) {
 
   telop_.size(40);
 
@@ -106,7 +107,7 @@ void arma::draw() {
     buttonPosTranslate(i);
 
     on_mouse_ = rectOnMouse(pos_, size_);
-    if (state_ != command::Select) { on_mouse_ = false; }
+    if (state_ != command::Select || pause_) { on_mouse_ = false; }
     win::draw(pos_, size_, win::color(on_mouse_ ? paint::Orange : paint::Blue,
       id_ == i ? (anime.blink_ / 2) % 2 : anime.alpha_), anime.alpha_ * 1.25f);
 

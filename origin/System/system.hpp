@@ -18,6 +18,13 @@ public:
   // TIPS: 使用状態のみを管理するデータを読み込んでゲームに反映する
   bool slot_state_[3];
 
+  // ポーズ画面判定
+  bool pause_;
+
+  // ゲームのクリアフラグ
+  // TIPS: 初期化処理を切り替える
+  bool clear_;
+
   // 描画シーンの状態
   // TIPS: 起動時の初期化は cGameManager クラスで行う
   // * 以降は scene_manager クラス内で管理
@@ -38,12 +45,6 @@ public:
   // TIPS: 戦闘、リザルトの各シーン内で処理を切り替える
   // * phase::Win, Lose でリザルトの処理を切り替える
   state::BattlePhase phase_;
-
-  // 戦闘画面で獲得した経験値
-  u_short exp_;
-
-  // 演出用
-  float move_x_;
 
   // ユニット情報
   std::vector<cCharacter> enemy;   // 敵キャラ

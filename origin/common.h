@@ -6,7 +6,6 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-#include <iostream>
 
 //
 // システム共通
@@ -54,6 +53,9 @@ namespace size {
 
     Result_W = 512,
     Result_H = 512,
+
+    Icon_W = 64,
+    Icon_H = 64,
   };
 
   // タイトル画面用
@@ -80,7 +82,7 @@ namespace size {
 
   // ポーズ画面専用
   enum Pause {
-    PausePos_Y = HEIGHT / 6,
+    PausePos_Y = HEIGHT / 4,
     Attension_Y = HEIGHT / 8,
   };
 
@@ -89,6 +91,15 @@ namespace size {
     Command_H = 60,
     CommandPos_X = -WIDTH / 2 + 10,
     CommandPos_Y = HEIGHT / 2 - Command_H - 10,
+
+    DataPos_X = 30,
+    DataPos_Y = Half_H - 60,
+    UnitData_Y = 90,
+
+    InvasionPos_X = -160,
+    InvasionPos_Y = Half_H - 240,
+    Invasion_W = 130,
+    Invasion_H = 130,
   };
 
   // 戦闘画面専用
@@ -128,6 +139,9 @@ namespace design {
     NameMaxSize = 5,    // 名前の最大文字数
 
     DefaultPos = 300,   // 準備画面コマンドボタンの初期位置
+
+    InvasionIcon_X = 4,
+    InvasionIcon_Y = 3,
   };
 
   // ゲーム難易度
@@ -138,9 +152,17 @@ namespace design {
     HARD,
   };
 
-  enum Weaponprice{
+  // ゲームクリアの評価基準
+  enum ClearRank {
+    S = 3,
+    A = 6,
+    B = 9,
+  };
+
+  // 兵器開発の価格
+  enum WeaponPrice {
     Fire = 1000,
-    Bomb = 2500,
+    Bomb = 3000,
     Trap = 800,
     Poison = 1500,
   };
@@ -321,6 +343,7 @@ namespace music {
   enum SoundEffect {
     Click,
     Click_Menu,
+    MouseOn,
 
     All_SE,
   };
@@ -365,8 +388,9 @@ typedef unsigned short            u_short;
 typedef std::stringstream         sstream;
 
 typedef design::Difficulty        dif;
+typedef design::ClearRank         rank;
+typedef design::WeaponPrice       price;
 typedef design::ColorType         paint;
-typedef design::Weaponprice       price;
 
 typedef state::SceneMode          scene;
 typedef state::SceneState         play;

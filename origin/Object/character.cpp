@@ -297,6 +297,16 @@ sstream chara::getLevelString() const {
 }
 
 
+u_short chara::getHP() const {
+  return hp_;
+}
+
+
+u_short chara::getHPMAX() const {
+  return hp_max_;
+}
+
+
 /* パラメータ操作（データ出力）関係 */
 ////////////////////////////////////////////////////////////
 

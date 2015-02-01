@@ -8,23 +8,22 @@ cFunds::cFunds() :
 size_(Vec2f(200, size::Command_H)),
 mode_(data::system.poli_mode_),
 poli_state_(data::system.command_state_),
-money_(data::user.assets.money_),
-food_(data::user.assets.food_),
+money_(data::user.money_),
 fire_(data::user.strategy.fire_),
 cannon_(data::user.strategy.cannon_),
 trap_(data::user.strategy.trap_),
-poison_(data::user.strategy.poison_) {
+poison_(data::user.strategy.poison_),
+pause_(data::system.pause_) {
 
   telop_.size(40);
 
-  text[Worker] = "兵士派遣 ";
-  text[Sell_fire] = "売:火炎瓶 ";
-  text[Sell_bomb] = "売:砲撃 ";
-  text[Sell_trap] = "売:罠 ";
-  text[Sell_poison] = "売:毒 ";
-  text[Back] = "戻る ";
+  text[Worker]      = "兵士派遣 ";
+  text[Sell_Fire]   = "売:火炎瓶 ";
+  text[Sell_Bomb]   = "売:砲撃 ";
+  text[Sell_Trap]   = "売:罠 ";
+  text[Sell_Poison] = "売:毒 ";
+  text[Back]        = "戻る ";
 
-  Worker_count = 0;
   init_ = false;
 };
 
@@ -35,49 +34,14 @@ void fund::update() {
   buttonSelect();
 }
 
-void fund::earn(){
-  switch (id_){
-    case Worker: Worker_count += 1;/*戦闘クリア後の報酬に+派遣回数×5%追加*/ break;
-
-    case Sell_fire:
-      if (fire_ > 0){
-        money_ += price::Fire / 2;
-        --fire_;
-      }
-      break;
-
-    case Sell_bomb:
-      if (cannon_ > 0){
-        money_ += price::Bomb / 2;
-        --cannon_;
-      }
-      break;
-
-    case Sell_trap:
-      if (trap_ > 0){
-        money_ += price::Trap / 2;
-        --trap_;
-      }
-      break;
-
-    case Sell_poison:
-      if (poison_ > 0){
-        money_ += price::Poison / 2;
-        --poison_;
-      }
-      break;
-
-    default:; //do not
-  }
-}
 
 bool fund::stateChange() {
   switch (state_) {
-  case command::MoveIn : moveMode();  break;
-  case command::Blink  : blinkMode(); break;
-  case command::MoveOut: backMode();  break;
+    case command::MoveIn : moveMode();  break;
+    case command::Blink  : blinkMode(); break;
+    case command::MoveOut: backMode();  break;
 
-  default: return false;
+    default: return false;
   }
 
   return true;
@@ -119,15 +83,60 @@ void fund::backMode() {
 void fund::buttonSelect() {
   for (i = 0; i < All_Text; ++i) {
     buttonPosTranslate(i);
+    isAbleToSell(i);
 
-    if (rectOnMouse(pos_, size_) &&
-      win::app->isPushButton(Mouse::LEFT)) {
+    // TIPS: 売却できる状態でなければクリックを許可しない
+    if (rectOnMouse(pos_, size_) && is_sell_ &&
+        win::app->isPushButton(Mouse::LEFT)) {
       data::music.sePlay(se::Click);
       ++state_;
       id_ = i;
+      incomeMoney();
     }
   }
-  earn();
+}
+
+
+void fund::incomeMoney() {
+  switch (id_) {
+    case      Worker: is_worker(); break;
+    case   Sell_Fire: is_fire();   break;
+    case   Sell_Bomb: is_bomb();   break;
+    case   Sell_Trap: is_trap();   break;
+    case Sell_Poison: is_poison(); break;
+
+    // 戻るボタンの時は何もしない
+    default:;
+  }
+}
+
+
+void fund::is_worker() {
+  //TODO: 全体のHPを減少させて、減少させた量に応じた金額を取得
+}
+
+
+void fund::is_fire() {
+  money_ += price::Fire / 2;
+  --fire_;
+}
+
+
+void fund::is_bomb() {
+  money_ += price::Bomb / 2;
+  --cannon_;
+}
+
+
+void fund::is_trap() {
+  money_ += price::Trap / 2;
+  --trap_;
+}
+
+
+void fund::is_poison() {
+  money_ += price::Poison / 2;
+  --poison_;
 }
 
 
@@ -144,20 +153,41 @@ void fund::init() {
 }
 
 
+// TIPS: ボタンのみ描画
+//     : 背景その他はまとめて politics 画面で描画処理を行っている
 void fund::draw() {
   for (i = 0; i < All_Text; ++i) {
     buttonPosTranslate(i);
+    isAbleToSell(i);
 
     on_mouse_ = rectOnMouse(pos_, size_);
-    if (state_ != command::Select) { on_mouse_ = false; }
-    win::draw(pos_, size_, win::color(on_mouse_ ? paint::Orange : paint::Blue,
+    if (state_ != command::Select || pause_) { on_mouse_ = false; }
+    win::draw(pos_, size_, win::color(!is_sell_ ? paint::Gray :
+      on_mouse_ ? paint::Orange : paint::Blue,
       id_ == i ? (anime.blink_ / 2) % 2 : anime.alpha_), anime.alpha_ * 1.25f);
 
     pos_.x() += (size_.x() - telop_.getTextLength(text[i])) / 2;
     pos_.y() += 15;
     telop_.drawText(text[i], pos_, win::color(paint::White,
       id_ == i ? (anime.blink_ / 2) % 2 : 1.f));
+
+    if (on_mouse_) { disp_telop(i); }
   }
+}
+
+
+void fund::isAbleToSell(const short& i) {
+  switch (i) {
+    case      Worker: break;//TODO:体力が減りすぎていたら許可しない
+    case   Sell_Fire: is_sell_ = fire_   > 0; break;
+    case   Sell_Bomb: is_sell_ = cannon_ > 0; break;
+    case   Sell_Trap: is_sell_ = trap_   > 0; break;
+    case Sell_Poison: is_sell_ = poison_ > 0; break;
+
+    // TIPS: まとめて判定処理をしている関係で、
+    //     : 戻るボタンまで使えなくなるので、常にクリック可能にしておく
+    default: is_sell_ = true;
+  };
 }
 
 
@@ -169,4 +199,56 @@ void fund::buttonPosTranslate(const short& i) {
 
 void fund::buttonPosInit() {
   for (i = 0; i < All_Text; ++i) { x[i] = design::DefaultPos; }
+}
+
+
+void fund::disp_telop(const short& id) {
+  std::string text_1;   // １行目のテキスト
+  std::string text_2;   // ２行目のテキスト
+
+  pos_.x() = size::BottomPos_X + 20;
+  pos_.y() = size::BottomPos_Y + 85;
+
+  // TIPS: 各ボタンの解説
+  //TODO: 必要な処理をコピペで作成（終わったらこのTODOコメントを削除）
+  switch (id) {
+    case Worker:
+      text_1 = is_sell_ ?
+        "戦闘以外の活動で給料を得ます" : "これ以上活動できません";
+      telop_.drawText(text_1, pos_, win::color(paint::White));
+
+      // TIPS: 以下、２行目のテキスト
+      text_2 = is_sell_ ?
+        "収入：全員のHPMAX 5%分  支出：全員のHP -5%" : " ";
+      pos_.y() -= 60;
+      telop_.drawText(text_2, pos_, win::color(paint::White));
+      break;
+
+    case Sell_Fire:
+      text_1 = is_sell_ ?
+        "火炎瓶を売却します：500 G" : "火炎瓶を所持していません。";
+      telop_.drawText(text_1, pos_, win::color(paint::White));
+      break;
+
+    case Sell_Bomb:
+      text_1 = is_sell_ ?
+        "砲台を売却します： 1500 G" : "砲台を所持していません。";
+      telop_.drawText(text_1, pos_, win::color(paint::White));
+      break;
+
+    case Sell_Trap:
+      text_1 = is_sell_ ?
+        "罠を売却します：    400 G" : "罠を所持していません。";
+      telop_.drawText(text_1, pos_, win::color(paint::White));
+      break;
+
+    case Sell_Poison:
+      text_1 = is_sell_ ?
+        "毒矢を売却します：  750 G" : "毒矢を所持していません。";
+      telop_.drawText(text_1, pos_, win::color(paint::White));
+      break;
+
+      // 戻るボタンは解説不要
+    default:;
+  }
 }

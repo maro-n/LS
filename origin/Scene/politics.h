@@ -20,16 +20,23 @@ class cPolitics {
   cInvasion  invasion_;    // 侵攻：ステージセレクト
 
   Texture bg_;
+  Texture smoke_;
   Texture sea_;
   Texture fog_;
+  Texture icon_;
   cTelop telop_;
+  cTelop unit_;
 
   short i;
   Vec2f pos_;
   const Vec2f size_;
   bool on_mouse_;
+  bool select_;
 
   std::string text[mode::All_Mode];
+  std::string icon_name[4];
+
+  std::vector<cCharacter>::iterator it_, begin_, end_;
 
   enum {
     Save,
@@ -49,10 +56,10 @@ class cPolitics {
 
   mode& mode_;
   short& state_;
+  bool& pause_;
   short id_;
 
   float x[mode::All_Mode - 1];
-
 
   bool stateShift();
   void moveMode();
@@ -66,9 +73,13 @@ class cPolitics {
   void effectPlay();
   void disp_back();
   void disp_mode();
+
   void disp_info();
+  void info_money();
+  void info_strategy();
+  void info_unit();
+  
   void disp_button();
-  void disp_select();
   void disp_telop();
 
   void buttonPosTranslate(const short&);
